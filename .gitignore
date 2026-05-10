@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+test_forensic.db
+test_export/
+test_report.html
+test_schema.dot
