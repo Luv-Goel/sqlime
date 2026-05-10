@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v4
@@ -23,28 +23,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-    - name: Run a quick check
+    - name: Run tests with pytest
       run: |
-        sqlime --version
-        python -c "import sqlime; print('import ok')"
-    - name: Create test DB and verify commands
-      run: |
-        python -c "
-        import sqlite3, os
-        conn = sqlite3.connect('/tmp/test.db')
-        conn.execute('CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT, val REAL)')
-        conn.execute(\"INSERT INTO t VALUES (1, 'alice', 1.0)\")
-        conn.execute(\"INSERT INTO t VALUES (2, 'bob', 2.0)\")
-        conn.execute('DELETE FROM t WHERE id = 1')
-        conn.commit()
-        conn.close()
-        "
-        sqlime inspect /tmp/test.db
-        sqlime schema /tmp/test.db
-        sqlime check /tmp/test.db
-        sqlime export /tmp/test.db --format json -o /tmp/test_export
-        sqlime report /tmp/test.db -o /tmp/test_report.html
-        echo "ALL COMMANDS PASSED"
+        pip install pytest
+        python -m pytest tests/ -v
 
   lint:
     runs-on: ubuntu-latest

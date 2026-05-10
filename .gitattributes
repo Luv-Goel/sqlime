@@ -1,0 +1,31 @@
+# Auto-detect text files and normalise line endings
+* text=auto
+
+# Explicitly mark shell scripts as LF
+*.sh text eol=lf
+
+# Batch files should stay CRLF on Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Python source
+*.py text eol=lf diff=python
+
+# Markdown / docs
+*.md text eol=lf
+*.rst text eol=lf
+
+# Config / data
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+
+# Lock files / generated (binary-ish)
+uv.lock -text
+
+# Git files
+.gitattributes text eol=lf
+.gitignore text eol=lf
