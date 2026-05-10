@@ -22,6 +22,8 @@ from .export import (
     format_export_results,
 )
 from .report import generate_forensic_report
+from .tui import run_tui
+from .hexdump import print_hexdump
 
 OK = "[OK]"
 FAIL = "[FAIL]"
@@ -79,6 +81,19 @@ def main():
     p.add_argument("--format", choices=["csv", "json", "sql"], default="csv", help="Export format")
     p.add_argument("-o", "--output", default="export", help="Output path (dir or file for SQL)")
 
+    # hexdump
+    p = sub.add_parser("hexdump", help="Hex dump database pages")
+    p.add_argument("database", help="Path to SQLite database")
+    p.add_argument("--page", type=int, help="Page number to dump")
+    p.add_argument("--start", type=int, help="Starting page")
+    p.add_argument("--end", type=int, help="Ending page (with --start)")
+    p.add_argument("--width", type=int, default=16, help="Bytes per line")
+    p.add_argument("--group", type=int, default=2, help="Bytes per hex group")
+
+    # tui
+    p = sub.add_parser("tui", help="Interactive terminal UI")
+    p.add_argument("database", help="Path to SQLite database")
+
     args = parser.parse_args()
 
     if args.command == "inspect":
@@ -95,6 +110,10 @@ def main():
         _cmd_check(args)
     elif args.command == "export":
         _cmd_export(args)
+    elif args.command == "hexdump":
+        print_hexdump(args)
+    elif args.command == "tui":
+        run_tui(args)
 
 
 def _verify_db(path: str) -> bool:
