@@ -1,175 +1,102 @@
-# 🔍 SQLime — SQLite Forensic Toolkit
+﻿# SQLime ðŸ•µï¸
 
 <div align="center">
 
-**Inspect, recover, and analyze SQLite databases like a digital forensics expert.**
-
-[![CI](https://github.com/Luv-Goel/sqlime/actions/workflows/ci.yml/badge.svg)](https://github.com/Luv-Goel/sqlime/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12-blue?logo=python)](https://github.com/Luv-Goel/sqlime)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)]()
+[![Python](https://img.shields.io/badge/python-3.8%2B-brightgreen)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/Luv-Goel/sqlime?style=social)](https://github.com/Luv-Goel/sqlime/stargazers)
+[![Dependencies](https://img.shields.io/badge/dependencies-zero-lightgrey)]()
 
-**Zero API keys. Zero cloud. Pure CLI forensics.**
+**SQLite forensic inspection and recovery toolkit â€” page inspection, ghost records, WAL analysis, BLOB carving. Zero dependencies.**
 
 </div>
 
 ---
 
-## What is SQLime?
+## Features
 
-SQLime is a **professional-grade forensic CLI** for SQLite databases. Think of it as a digital forensics toolkit for the most ubiquitous database format on the planet — every phone, browser, app, and embedded device uses SQLite.
-
-**Use it when you need to:**
-
-- 🔬 **Inspect** database structure at the page level (hex dump, header decode, cell analysis)
-- 💀 **Recover** deleted records from unallocated space
-- 📋 **Analyze** WAL journal files for uncommitted transactions and historical data
-- 🧩 **Carve** embedded files from BLOB columns (images, PDFs, archives)
-- 🩺 **Diagnose** corruption with integrity checks, page scanning, and foreign key validation
-- 🗺️ **Visualize** schema with dependency graphs and comprehensive reports
-- 📤 **Export** data to CSV, JSON, or SQL with forensic context
+- **Database inspection** â€” Tables, indices, views, triggers, foreign keys, schema overview
+- **Page-level analysis** â€” Inspect individual database pages, B-tree structure
+- **Integrity check** â€” Full database integrity verification with detailed reporting
+- **Ghost record recovery** â€” Recover deleted records from free pages and unallocated space
+- **WAL journal analysis** â€” Read WAL frames, checkpoints, rollback investigation
+- **BLOB carving** â€” Extract embedded files using 30+ magic byte signatures (PNG, JPEG, PDF, ZIP, etc.)
+- **Multiple export formats** â€” CSV, JSON, SQL INSERT statements for recovered data
+- **HTML forensic reports** â€” Professional reports suitable for evidence documentation
+- **Zero dependencies** â€” Pure Python 3.8+, stdlib only
+- **No API keys required** â€” Completely offline, works with any SQLite database
 
 ## Quick Start
 
 ```bash
-# Install
-pip install sqlime
+pip install sqlime-forensics
 
-# Get the big picture
-sqlime inspect chat.db
+# Inspect database
+sqlime inspect database.db
 
-# Check for corruption
-sqlime check chat.db
+# Show schema
+sqlime schema database.db
 
-# Recover deleted data
-sqlime recover chat.db --deleted
+# Integrity check
+sqlime check database.db
 
-# Dump the schema
-sqlime schema chat.db
+# Recover deleted records
+sqlime recover database.db --output recovered.csv
 
-# Export everything
-sqlime export chat.db --format json -o evidence/
-
-# Generate a forensic report
-sqlime report chat.db -o report.html
-
-# Drill into specific pages
-sqlime inspect chat.db --page 3 --hex
-sqlime inspect chat.db --page 5 --decode
-
-# Analyze WAL files
-sqlime wal chat.db-wal
+# Analyze WAL journal
+sqlime wal database.db-wal
 
 # Carve embedded files
-sqlime recover chat.db --blob-extract carved_files/
+sqlime export database.db --output ./carved_files
+
+# HTML forensic report
+sqlime report database.db --output report.html
 ```
 
-## Commands
+## CLI Reference
 
-| Command | What it does |
+| Command | Description |
 |---------|-------------|
-| `sqlime inspect <db>` | Full database header + metadata overview |
-| `sqlime inspect <db> --page N` | Hex dump or decode a specific page |
-| `sqlime inspect <db> --freelist` | List freelist (free/unallocated) pages |
-| `sqlime schema <db>` | Tables, indexes, views, triggers, columns, types |
-| `sqlime schema <db> --graph out.dot` | Generate Graphviz dependency graph |
-| `sqlime check <db>` | PRAGMA integrity_check + foreign key validation |
-| `sqlime recover <db> --deleted` | Scan freeblocks + unallocated space for ghost records |
-| `sqlime recover <db> --wal <wal>` | Analyze and recover data from WAL journal |
-| `sqlime recover <db> --blob-extract <dir>` | Carve and extract BLOB files |
-| `sqlime wal <file>` | Analyze standalone WAL journal file |
-| `sqlime export <db> --format csv/json/sql` | Bulk export all data or schema DDL |
-| `sqlime report <db> -o report.html` | Generate standalone forensic HTML report |
+| `sqlime inspect [db]` | Database metadata and schema overview |
+| `sqlime schema [db]` | Full schema with DDL for all objects |
+| `sqlime check [db]` | Database integrity verification |
+| `sqlime recover [db]` | Ghost record recovery from free pages |
+| `sqlime wal [file]` | WAL journal analysis |
+| `sqlime export [db]` | BLOB carving and file extraction |
+| `sqlime report [db]` | Full forensic HTML report |
 
-## Features in Detail
+## Key Features in Detail
 
-### 🔬 Page-Level Inspection
-SQLite stores data in fixed-size pages (usually 4KB). SQLime gives you full access:
-- **Hex dump** any page with ASCII sidebar, offset markers, and color coding
-- **Decode page headers** — type (leaf/interior table, leaf/interior index, overflow), cell count, freeblock pointers, cell content region
-- **Parse cell pointers** — see what's actually stored and where
-- **Walk freelists** — find all unallocated pages
+### Ghost Record Recovery
+Recovers deleted or overwritten records from SQLite's free pages, unallocated space, and page fragmentation. Supports CSV, JSON, and SQL output formats for recovered data.
 
-### 💀 Deleted Row Recovery
-When SQLite deletes a row, it marks the record as free but doesn't immediately overwrite the data. SQLime can:
-- Find **freeblocks** within pages (formally deleted, recycled cell space)
-- Scan **unallocated space** between the cell pointer array and content region
-- Attempt to decode residual record data from these areas
-- Map ghost records back to their original tables using schema information
+### WAL Journal Analysis
+Reads Write-Ahead Log (WAL) files to recover data from uncheckpointed transactions, analyze rollback states, and reconstruct database history.
 
-### 📋 WAL Journal Analysis
-Write-Ahead Log files contain a complete history of recent changes:
-- Parse WAL headers, frame headers, and checksums
-- Extract page data from WAL frames — including pages from **uncommitted** or **rolled back** transactions
-- Match WAL frames to database tables
-- Visualize transaction timeline
+### BLOB Carving
+Extracts embedded files using signature-based carving with 30+ magic byte patterns:
+- Images: PNG, JPEG, GIF, BMP, TIFF, WEBP
+- Documents: PDF, DOC, DOCX, XLS, XLSX
+- Archives: ZIP, GZIP, TAR, RAR, 7Z
+- Media: MP3, MP4, AVI, WAV, FLAC
+- Data: SQLite DB, JSON, XML
 
-### 🧩 BLOB Carving
-Databases often embed files in BLOB columns. SQLime can:
-- Find all BLOB columns across all tables
-- Extract BLOB data and identify file types by **magic bytes** (PNG, JPG, PDF, ZIP, GIF, MP4, and 30+ more)
-- Carve files directly to disk with proper extensions
-
-### 🩺 Corruption Detection
-- **PRAGMA integrity_check** — the official SQLite integrity verification
-- **PRAGMA quick_check** — faster alternative for large databases
-- **Foreign key validation** — find orphaned rows
-- **Page-level structural scan** — validate page headers, cell counts, and content regions
-
-### 🗺️ Schema Visualization
-- Full schema: tables, indexes, views, triggers with columns, types, constraints
-- Column-level detail: PK, NOT NULL, defaults, type affinity
-- **Graphviz DOT export** — visualize table relationships and foreign keys
-- **HTML report** — interactive forensic summary with status cards and navigation
-
-## Project Structure
+## Architecture
 
 ```
 sqlime/
-├── sqlime/
-│   ├── cli.py         # argparse CLI with 7 subcommands
-│   ├── pages.py       # Page-level reading, headers, hex dump
-│   ├── wal.py         # WAL journal parsing and recovery
-│   ├── recovery.py    # Deleted row scanning, record parsing
-│   ├── schema.py      # Schema extraction, Graphviz DOT export
-│   ├── check.py       # Integrity checks and corruption scanning
-│   ├── carve.py       # BLOB carving with magic byte detection
-│   ├── export.py      # CSV, JSON, SQL export
-│   └── report.py      # HTML forensic report generation
-├── tests/
-├── pyproject.toml
-└── README.md
+â”œâ”€â”€ sqlime/
+â”‚   â”œâ”€â”€ __init__.py
+â”‚   â”œâ”€â”€ cli.py       # CLI entry point
+â”‚   â”œâ”€â”€ core.py      # Database operations
+â”‚   â”œâ”€â”€ recovery.py  # Ghost record recovery
+â”‚   â”œâ”€â”€ wal.py       # WAL journal analysis
+â”‚   â”œâ”€â”€ carve.py     # BLOB carving engine
+â”‚   â””â”€â”€ report.py    # HTML report generation
+â”œâ”€â”€ pyproject.toml
+â””â”€â”€ README.md
 ```
-
-## Why SQLime?
-
-Existing forensic SQLite tools are:
-- **$$$ Expensive** — Belkasoft, Magnet, Oxygen cost thousands
-- **GUI-only** — can't script or integrate into CI/CD pipelines
-- **Overkill** — you don't need a full suite for a quick recovery
-- **Closed source** — can't audit what they're doing
-
-SQLime is: **free**, **open source**, **CLI-first**, **scriptable**, and **auditable**.
-
-And unlike similar CLI tools, SQLime focuses on **actual forensics** — it reads raw pages, walks freeblocks, parses WAL frames, and finds ghost data. It's not just a sqlite3 wrapper with pretty output.
-
-## Roadmap
-
-- [x] Page-level inspection (hex + decode)
-- [x] Deleted row recovery (freeblocks + unallocated space)
-- [x] WAL journal analysis and recovery
-- [x] BLOB carving with magic byte detection
-- [x] Schema extraction and DOT graph export
-- [x] HTML forensic report
-- [x] CSV/JSON/SQL export
-- [ ] Live forensic mode (process memory + temp files)
-- [ ] Timeline reconstruction (WAL frame ordering + table row versions)
-- [ ] Crypto wallet forensics (detect common wallet DB patterns)
 
 ## License
 
-MIT. Do whatever, but use responsibly — forensic tools are powerful.
-
----
-
-*SQLime was built by [ClawWorks Engineering Inc.](https://github.com/Luv-Goel) — 6 projects/day, no excuses.*
+MIT â€” see [LICENSE](LICENSE).
